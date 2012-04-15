@@ -1,24 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>RayDisplayWindow</class>
- <widget class="QMainWindow" name="RayDisplayWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="RayDisplayWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>1002</width>
+    <height>719</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>RayDisplayWindow</string>
   </property>
-  <widget class="QMenuBar" name="menuBar" />
-  <widget class="QToolBar" name="mainToolBar" />
-  <widget class="QWidget" name="centralWidget" />
-  <widget class="QStatusBar" name="statusBar" />
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QGraphicsView" name="modelDisplay">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>971</width>
+      <height>571</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="rayAngleSpinBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>580</y>
+      <width>171</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>2</number>
+    </property>
+    <property name="value">
+     <number>30</number>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="demoCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>580</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>demo mode</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="clearObstaclePushButton">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>580</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>clear polygon</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="collideEnableCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>580</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>collide</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>580</y>
+      <width>142</width>
+      <height>86</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>operation</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QRadioButton" name="radioButton">
+       <property name="text">
+        <string>timer</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButton_2">
+       <property name="text">
+        <string>manual</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="senderIteratePushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>580</y>
+      <width>111</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>next sender</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1002</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
  </widget>
- <layoutDefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>
 </ui>
