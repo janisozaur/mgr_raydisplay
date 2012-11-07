@@ -1,4 +1,6 @@
 #include <limits.h>
+#include <opencv2/imgproc/imgproc_c.h>
+
 #include "BlobOperators.h"
 
 /***************************************************************************

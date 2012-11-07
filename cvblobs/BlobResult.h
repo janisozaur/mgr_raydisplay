@@ -19,9 +19,10 @@ MODIFICATIONS (Modification, Author, Date):
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BlobLibraryConfiguration.h"
+#include <opencv2/core/core_c.h>
 #include <math.h>
-#include <opencv/cxcore.h>
+
+#include "BlobLibraryConfiguration.h"
 
 #ifdef MATRIXCV_ACTIU
 	#include "matrixCV.h"
