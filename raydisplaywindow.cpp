@@ -44,7 +44,7 @@ void RayDisplayWindow::on_demoCheckBox_toggled(bool checked)
 {
 	if (checked) {
 		mRDS->clearRays();
-        mDemoRayTimer->start();
+		on_radioButton_toggled(ui->radioButton->isChecked());
 	} else {
 		mRDS->initRays(ui->rayAngleSpinBox->value());
 		mDemoRayTimer->stop();

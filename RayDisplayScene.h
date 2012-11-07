@@ -3,6 +3,8 @@
 
 #include <QGraphicsScene>
 #include <QList>
+#include <QVector>
+#include <opencv2/core/core.hpp>
 
 class QGraphicsEllipseItem;
 class QGraphicsLineItem;
@@ -17,12 +19,14 @@ class RayDisplayScene : public QGraphicsScene
 	{
 		QGraphicsEllipseItem *r;
 		int rotation;
+		int side;
 	};
 
 	struct Ray
 	{
 		QLineF line;
 		bool visible;
+		bool isCornerRay;
 	};
 
 public:
@@ -47,8 +51,12 @@ protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 private:
+	bool isStartingRay(const QVector<Ray> &rays, const int idx) const;
+	bool isCornerRay(const QVector<Ray> &rays, const int idx) const;
+	bool isFinishingRay(const QVector<Ray> &rays, const int idx) const;
 	QVector<Sender> mSenders;
 	QVector<QGraphicsEllipseItem *> mReceivers;
+	QVector<QVector<QGraphicsEllipseItem *> > mSidedReceivers;
 	QVector<QGraphicsLineItem *> mRays;
 	QPolygonF mObstacle;
 	QGraphicsPolygonItem *mGraphicsObstacle;
@@ -56,6 +64,10 @@ private:
 	bool mCollisionEnabled;
     QVector<QGraphicsEllipseItem *> mCollisions;
 	QVector<QVector<QGraphicsLineItem *> > mCollidedRaysGraphics;
+	QVector<QList<QGraphicsPolygonItem *> > mTriangles;
+	QVector<QGraphicsTextItem *> mRayNumbers;
+	QVector<QList<QVector<cv::Point2i> > > mCvPolygons;
+	QVector<cv::Mat> mMats;
 };
 
 #endif // RAYDISPLAYSCENE_H

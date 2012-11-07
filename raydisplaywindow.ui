@@ -45,7 +45,7 @@
      <rect>
       <x>200</x>
       <y>580</y>
-      <width>91</width>
+      <width>111</width>
       <height>17</height>
      </rect>
     </property>
@@ -56,7 +56,7 @@
    <widget class="QPushButton" name="clearObstaclePushButton">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>310</x>
       <y>580</y>
       <width>91</width>
       <height>23</height>
