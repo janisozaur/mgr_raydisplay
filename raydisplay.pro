@@ -13,13 +13,16 @@ QMAKE_CXXFLAGS += -std=c++0x -mtune=native -march=native -fopenmp
 TARGET = raydisplay
 TEMPLATE = app
 
-LIBS += -lgomp
+LIBS += -lgomp -lopencv_core -lopencv_highgui
 
 SOURCES += main.cpp\
         raydisplaywindow.cpp \
-    RayDisplayScene.cpp
+    RayDisplayScene.cpp \
+    Tracker.cpp
 
 HEADERS  += raydisplaywindow.h \
-    RayDisplayScene.h
+    RayDisplayScene.h \
+    Blob.h \
+    Tracker.h
 
 FORMS    += raydisplaywindow.ui
