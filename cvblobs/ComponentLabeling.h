@@ -6,7 +6,7 @@
 #include "blob.h"
 
 
-//! definició de que es un vector de blobs
+//! definiciÃ³ de que es un vector de blobs
 typedef std::vector<CBlob*>	Blob_vector;
 
 

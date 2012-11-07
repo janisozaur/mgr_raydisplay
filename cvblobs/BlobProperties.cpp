@@ -2,33 +2,33 @@
 
 
 /**
-- FUNCIÓ: GetPerimeter
+- FUNCIÃ“: GetPerimeter
 - FUNCIONALITAT: Get perimeter from chain code. Diagonals sum sqrt(2) and horizontal and vertical codes 1
-- PARÀMETRES:
+- PARÃ€METRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACIÓ: 2008/04/30
-- MODIFICACIÓ: Data. Autor. Descripció.
+- DATA DE CREACIÃ“: 2008/04/30
+- MODIFICACIÃ“: Data. Autor. DescripciÃ³.
 - NOTA: Algorithm derived from "Methods to estimate area and perimeters of blob-like objects: A comparison", L.Yang
 */
 #define SQRT2 1.414213562
 
 /**
-- FUNCIÓ: GetPerimeter
+- FUNCIÃ“: GetPerimeter
 - FUNCIONALITAT: Get blob area, ie. external contour area minus internal contours area
-- PARÀMETRES:
+- PARÃ€METRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACIÓ: 2008/04/30
-- MODIFICACIÓ: Data. Autor. Descripció.
+- DATA DE CREACIÃ“: 2008/04/30
+- MODIFICACIÃ“: Data. Autor. DescripciÃ³.
 */
 
 double CBlobProperties::GetArea()
@@ -49,17 +49,17 @@ double CBlobProperties::GetArea()
 }
 
 /**
-- FUNCIÓ: GetPerimeter
+- FUNCIÃ“: GetPerimeter
 - FUNCIONALITAT: Get blob perimeter, ie. sum of the lenght of all the contours
-- PARÀMETRES:
+- PARÃ€METRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACIÓ: 2008/04/30
-- MODIFICACIÓ: Data. Autor. Descripció.
+- DATA DE CREACIÃ“: 2008/04/30
+- MODIFICACIÃ“: Data. Autor. DescripciÃ³.
 */
 double CBlobProperties::GetPerimeter()
 {

@@ -1,9 +1,9 @@
 /************************************************************************
   			BlobLibraryConfiguration.h
   			
-FUNCIONALITAT: Configuració del comportament global de la llibreria
+FUNCIONALITAT: ConfiguraciÃ³ del comportament global de la llibreria
 AUTOR: Inspecta S.L.
-MODIFICACIONS (Modificació, Autor, Data):
+MODIFICACIONS (ModificaciÃ³, Autor, Data):
 
 FUNCTIONALITY: Global configuration of the library
 AUTHOR: Inspecta S.L.

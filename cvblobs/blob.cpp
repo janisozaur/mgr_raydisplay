@@ -1,9 +1,9 @@
 /************************************************************************
   			Blob.cpp
   			
-- FUNCIONALITAT: ImplementaciÛ de la classe CBlob
+- FUNCIONALITAT: Implementaci√≥ de la classe CBlob
 - AUTOR: Inspecta S.L.
-MODIFICACIONS (ModificaciÛ, Autor, Data):
+MODIFICACIONS (Modificaci√≥, Autor, Data):
 
  
 FUNCTIONALITY: Implementation of the CBlob class and some helper classes to perform
@@ -134,7 +134,7 @@ void CBlob::AddInternalContour( const CBlobContour &newContour )
 	m_internalContours.push_back(newContour);
 }
 
-//! Indica si el blob est‡ buit ( no tÈ cap info associada )
+//! Indica si el blob est√† buit ( no t√© cap info associada )
 //! Shows if the blob has associated information
 bool CBlob::IsEmpty()
 {
@@ -142,17 +142,17 @@ bool CBlob::IsEmpty()
 }
 
 /**
-- FUNCI”: Area
+- FUNCI√ì: Area
 - FUNCIONALITAT: Get blob area, ie. external contour area minus internal contours area
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/04/30
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/04/30
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 */
 double CBlob::Area()
 {
@@ -172,17 +172,17 @@ double CBlob::Area()
 }
 
 /**
-- FUNCI”: Perimeter
+- FUNCI√ì: Perimeter
 - FUNCIONALITAT: Get blob perimeter, ie. sum of the lenght of all the contours
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/04/30
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/04/30
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 */
 double CBlob::Perimeter()
 {
@@ -203,9 +203,9 @@ double CBlob::Perimeter()
 }
 
 /**
-- FUNCI”: Exterior
+- FUNCI√ì: Exterior
 - FUNCIONALITAT: Return true for extern blobs
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- xBorder: true to consider blobs touching horizontal borders as extern
 	- yBorder: true to consider blobs touching vertical borders as extern
 - RESULTAT:
@@ -213,8 +213,8 @@ double CBlob::Perimeter()
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/05/06
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/05/06
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 */
 int	CBlob::Exterior(IplImage *mask, bool xBorder /* = true */, bool yBorder /* = true */)
 {
@@ -226,9 +226,9 @@ int	CBlob::Exterior(IplImage *mask, bool xBorder /* = true */, bool yBorder /* =
 	return 0;	 
 }
 /**
-- FUNCI”: ExternPerimeter
+- FUNCI√ì: ExternPerimeter
 - FUNCIONALITAT: Get extern perimeter (perimeter touching image borders)
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- maskImage: if != NULL, counts maskImage black pixels as external pixels and contour points touching
 				 them are counted as external contour points.
 	- xBorder: true to consider blobs touching horizontal borders as extern
@@ -238,8 +238,8 @@ int	CBlob::Exterior(IplImage *mask, bool xBorder /* = true */, bool yBorder /* =
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/05/05
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/05/05
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 - NOTA: If CBlobContour::GetContourPoints aproximates contours with a method different that NONE,
 		this function will not give correct results
 */
@@ -394,17 +394,17 @@ double CBlob::Moment(int p, int q)
 }
 
 /**
-- FUNCI”: Mean
+- FUNCI√ì: Mean
 - FUNCIONALITAT: Get blob mean color in input image
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- image: image from gray color are extracted
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/05/06
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/05/06
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 */
 double CBlob::Mean( IplImage *image )
 {
@@ -473,17 +473,17 @@ double CBlob::StdDev( IplImage *image )
 	return m_stdDevGray;
 }
 /**
-- FUNCI”: GetBoundingBox
+- FUNCI√ì: GetBoundingBox
 - FUNCIONALITAT: Get bounding box (without rotation) of a blob
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/05/06
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/05/06
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 */
 CvRect CBlob::GetBoundingBox()
 {
@@ -539,17 +539,17 @@ CvRect CBlob::GetBoundingBox()
 }
 
 /**
-- FUNCI”: GetEllipse
+- FUNCI√ì: GetEllipse
 - FUNCIONALITAT: Calculates bounding ellipse of external contour points
-- PAR¿METRES:
+- PAR√ÄMETRES:
 	- 
 - RESULTAT:
 	- 
 - RESTRICCIONS:
 	- 
 - AUTOR: rborras
-- DATA DE CREACI”: 2008/05/06
-- MODIFICACI”: Data. Autor. DescripciÛ.
+- DATA DE CREACI√ì: 2008/05/06
+- MODIFICACI√ì: Data. Autor. Descripci√≥.
 - NOTA: Calculation is made using second order moment aproximation
 */
 CvBox2D CBlob::GetEllipse()
@@ -642,7 +642,7 @@ CvBox2D CBlob::GetEllipse()
 - RESULT:
 	- modifies input image and returns the seed point used to fill the blob
 - RESTRICTIONS:
-- AUTHOR: Ricard Borr‡s
+- AUTHOR: Ricard Borr√†s
 - CREATION DATE: 25-05-2005.
 - MODIFICATION: Date. Author. Description.
 */
@@ -660,7 +660,7 @@ void CBlob::FillBlob( IplImage *imatge, CvScalar color, int offsetX /*=0*/, int 
 - RESULT:
 	- true if no error ocurred
 - RESTRICTIONS:
-- AUTHOR: Ricard Borr‡s
+- AUTHOR: Ricard Borr√†s
 - CREATION DATE: 25-05-2005.
 - MODIFICATION: Date. Author. Description.
 */
@@ -683,7 +683,7 @@ t_PointList CBlob::GetConvexHull()
 - RESULT:
 	- true if no error ocurred
 - RESTRICTIONS: Only external contours are added
-- AUTHOR: Ricard Borr‡s
+- AUTHOR: Ricard Borr√†s
 - CREATION DATE: 25-05-2005.
 - MODIFICATION: Date. Author. Description.
 */

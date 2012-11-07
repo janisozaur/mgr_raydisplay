@@ -4,12 +4,12 @@
 #include "blob.h"
 
 /**************************************************************************
-		DefiniciÛ de les classes per a fer operacions sobre els blobs
+		Definici√≥ de les classes per a fer operacions sobre els blobs
 
 		Helper classes to perform operations on blobs
 **************************************************************************/
 
-//! Factor de conversiÛ de graus a radians
+//! Factor de conversi√≥ de graus a radians
 #define DEGREE2RAD		(CV_PI / 180.0)
 
 
@@ -35,7 +35,7 @@ typedef COperadorBlob funcio_calculBlob;
 
 #ifdef BLOB_OBJECT_FACTORY
 	/**
-		FunciÛ per comparar dos identificadors dins de la f‡brica de COperadorBlobs
+		Funci√≥ per comparar dos identificadors dins de la f√†brica de COperadorBlobs
 	*/
 	struct functorComparacioIdOperador
 	{
@@ -48,7 +48,7 @@ typedef COperadorBlob funcio_calculBlob;
 	//! Definition of Object factory type for COperadorBlob objects
 	typedef ObjectFactory<COperadorBlob, const char *, functorComparacioIdOperador > t_OperadorBlobFactory;
 
-	//! FunciÛ global per a registrar tots els operadors definits a blob.h
+	//! Funci√≥ global per a registrar tots els operadors definits a blob.h
 	void RegistraTotsOperadors( t_OperadorBlobFactory &fabricaOperadorsBlob );
 
 #endif
@@ -70,7 +70,7 @@ public:
 };
 
 
-//! Classe per calcular l'‡rea d'un blob
+//! Classe per calcular l'√†rea d'un blob
 //! Class to get the area of a blob
 class CBlobGetArea : public COperadorBlob
 {
@@ -100,7 +100,7 @@ public:
 	}
 };
 
-//! Classe que diu si un blob Ès extern o no
+//! Classe que diu si un blob √©s extern o no
 //! Class to get the extern flag of a blob
 class CBlobGetExterior: public COperadorBlob
 {
@@ -157,7 +157,7 @@ private:
 	IplImage *m_image;
 };
 
-//! Classe per calcular la desviaciÛ est‡ndard dels nivells de gris d'un blob
+//! Classe per calcular la desviaci√≥ est√†ndard dels nivells de gris d'un blob
 //! Class to get the standard deviation of the grey level values of a blob
 class CBlobGetStdDev: public COperadorBlob
 {
@@ -220,7 +220,7 @@ public:
 	}
 };
 
-//! Classe per calcular la diferËncia en X del blob
+//! Classe per calcular la difer√®ncia en X del blob
 class CBlobGetDiffX: public COperadorBlob
 {
 public:
@@ -234,7 +234,7 @@ public:
 	}
 };
 
-//! Classe per calcular la diferËncia en X del blob
+//! Classe per calcular la difer√®ncia en X del blob
 class CBlobGetDiffY: public COperadorBlob
 {
 public:
@@ -253,7 +253,7 @@ public:
 class CBlobGetMoment: public COperadorBlob
 {
 public:
-	//! Constructor est‡ndard
+	//! Constructor est√†ndard
 	//! Standard constructor (gets the 00 moment)
 	CBlobGetMoment()
 	{
@@ -289,7 +289,7 @@ public:
 	}
 };
 
-//! Classe per calcular l'‡rea del poligon convex d'un blob
+//! Classe per calcular l'√†rea del poligon convex d'un blob
 //! Class to calculate the convex hull area of a blob
 class CBlobGetHullArea: public COperadorBlob
 {
@@ -349,7 +349,7 @@ public:
 	}
 };
 
-//! Classe per a calcular la x mÌnima
+//! Classe per a calcular la x m√≠nima
 //! Class to get the minimum x
 class CBlobGetMinX: public COperadorBlob
 {
@@ -364,7 +364,7 @@ public:
 	}
 };
 
-//! Classe per a calcular la x m‡xima
+//! Classe per a calcular la x m√†xima
 //! Class to get the maximum x
 class CBlobGetMaxX: public COperadorBlob
 {
@@ -379,7 +379,7 @@ public:
 	}
 };
 
-//! Classe per a calcular la y mÌnima
+//! Classe per a calcular la y m√≠nima
 //! Class to get the minimum y
 class CBlobGetMinY: public COperadorBlob
 {
@@ -394,7 +394,7 @@ public:
 	}
 };
 
-//! Classe per a calcular la y m‡xima
+//! Classe per a calcular la y m√†xima
 //! Class to get the maximum y
 class CBlobGetMaxY: public COperadorBlob
 {
@@ -434,7 +434,7 @@ public:
 	}
 };
 
-//! Classe per calcular la dist‡ncia entre el centre del blob i un punt donat
+//! Classe per calcular la dist√†ncia entre el centre del blob i un punt donat
 //! Class to calculate the euclidean distance between the center of a blob and a given point
 class CBlobGetDistanceFromPoint: public COperadorBlob
 {
@@ -458,7 +458,7 @@ public:
 	}
 
 private:
-	// coordenades del punt on volem calcular la dist‡ncia
+	// coordenades del punt on volem calcular la dist√†ncia
 	double m_x, m_y;
 };
 
@@ -493,8 +493,8 @@ private:
 };
 
 //! Classe per calcular el ratio entre el perimetre i nombre pixels externs
-//! valors propers a 0 indiquen que la majoria del blob Ès intern
-//! valors propers a 1 indiquen que la majoria del blob Ès extern
+//! valors propers a 0 indiquen que la majoria del blob √©s intern
+//! valors propers a 1 indiquen que la majoria del blob √©s extern
 //! Class to calculate the ratio between the perimeter and the number of extern pixels
 class CBlobGetExternPerimeterRatio: public COperadorBlob
 {
@@ -528,8 +528,8 @@ private:
 };
 
 //! Classe per calcular el ratio entre el perimetre convex i nombre pixels externs
-//! valors propers a 0 indiquen que la majoria del blob Ès intern
-//! valors propers a 1 indiquen que la majoria del blob Ès extern
+//! valors propers a 0 indiquen que la majoria del blob √©s intern
+//! valors propers a 1 indiquen que la majoria del blob √©s extern
 //! Class to calculate the ratio between the perimeter and the number of extern pixels
 class CBlobGetExternHullPerimeterRatio: public COperadorBlob
 {
@@ -656,7 +656,7 @@ public:
 	}
 };
 
-//! Classe per calcular l'orientaciÛ de l'ellipse del blob en radians
+//! Classe per calcular l'orientaci√≥ de l'ellipse del blob en radians
 //! Class to calculate the orientation of the ellipse that fits the blob edges in radians
 class CBlobGetOrientation: public COperadorBlob
 {
@@ -678,7 +678,7 @@ public:
 	}
 };
 
-//! Classe per calcular el cosinus de l'orientaciÛ de l'ellipse del blob
+//! Classe per calcular el cosinus de l'orientaci√≥ de l'ellipse del blob
 //! Class to calculate the cosinus of the orientation of the ellipse that fits the blob edges
 class CBlobGetOrientationCos: public COperadorBlob
 {
@@ -695,7 +695,7 @@ public:
 };
 
 
-//! Classe per calcular el ratio entre l'eix major i menor de la el∑lipse
+//! Classe per calcular el ratio entre l'eix major i menor de la el¬∑lipse
 //! Class to calculate the ratio between both axes of the ellipse
 class CBlobGetAxisRatio: public COperadorBlob
 {
@@ -726,7 +726,7 @@ public:
 class CBlobGetXYInside: public COperadorBlob
 {
 public:
-	//! Constructor est‡ndard
+	//! Constructor est√†ndard
 	//! Standard constructor
 	CBlobGetXYInside()
 	{
