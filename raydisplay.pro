@@ -13,7 +13,7 @@ QMAKE_CXXFLAGS += -std=c++0x -mtune=native -march=native -fopenmp
 TARGET = raydisplay
 TEMPLATE = app
 
-LIBS += -lgomp -lopencv_core -lopencv_highgui
+LIBS += -lgomp -lopencv_core -lopencv_highgui -lblob -L../raydisplay/cvblobs -lopencv_imgproc
 
 SOURCES += main.cpp\
         raydisplaywindow.cpp \
