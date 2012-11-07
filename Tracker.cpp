@@ -17,7 +17,7 @@ void Tracker::trackBlobs(cv::Mat &mat, bool history)
 	img = mat;
 
 	// cvblobslib blob extraction
-	blob_result = CBlobResult(&img, NULL, 127, false);
+	blob_result = CBlobResult(&img, NULL, 0);
 	blob_result.Filter(blob_result, B_EXCLUDE, CBlobGetArea(), B_LESS, min_area); // filter blobs with area less than min_area units
 
 	// clear the blobs from two frames ago
@@ -35,12 +35,12 @@ void Tracker::trackBlobs(cv::Mat &mat, bool history)
 	for (int i = 1; i < blob_result.GetNumBlobs(); i++) {
 		current_blob = blob_result.GetBlob(i);
 
-		x     = XCenter(current_blob);
-		y     = YCenter(current_blob);
-		min_x = MinX(current_blob);
-		min_y = MinY(current_blob);
-		max_x = MaxX(current_blob);
-		max_y = MaxY(current_blob);
+		x     = XCenter(*current_blob);
+		y     = YCenter(*current_blob);
+		min_x = MinX(*current_blob);
+		min_y = MinY(*current_blob);
+		max_x = MaxX(*current_blob);
+		max_y = MaxY(*current_blob);
 
 		temp.location.x = temp.origin.x = x;
 		temp.location.y = temp.origin.y = y;
@@ -77,7 +77,7 @@ void Tracker::trackBlobs(cv::Mat &mat, bool history)
 	}
 }
 
-QVector<Blob>& Tracker::getBlobs()
+QVector<Blob> &Tracker::getBlobs()
 {
 	return blobs;
 }
