@@ -6,6 +6,8 @@
 #include <QVector>
 #include <opencv2/core/core.hpp>
 
+#include "Tracker.h"
+
 class QGraphicsEllipseItem;
 class QGraphicsLineItem;
 class QPolygonF;
@@ -68,6 +70,7 @@ private:
 	QVector<QGraphicsTextItem *> mRayNumbers;
 	QVector<QList<QVector<cv::Point2i> > > mCvPolygons;
 	QVector<cv::Mat> mMats;
+	Tracker mTracker;
 };
 
 #endif // RAYDISPLAYSCENE_H

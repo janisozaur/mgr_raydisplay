@@ -8,7 +8,7 @@ Tracker::~Tracker()
 {
 }
 
-void Tracker::trackBlobs(cv::Mat &mat, bool history)
+void Tracker::trackBlobs(const cv::Mat &mat, bool history)
 {
 	double x, y, min_x, min_y, max_x, max_y;
 	Blob temp;

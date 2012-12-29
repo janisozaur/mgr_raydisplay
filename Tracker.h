@@ -12,7 +12,7 @@ public:
 	Tracker(double min_area, double max_radius);
 	~Tracker();
 
-	void trackBlobs(cv::Mat &mat, bool history);
+	void trackBlobs(const cv::Mat &mat, bool history);
 	QVector<Blob> &getBlobs();
 
 private:
