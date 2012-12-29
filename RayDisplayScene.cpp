@@ -8,7 +8,7 @@
 #include <QDebug>
 
 RayDisplayScene::RayDisplayScene(QObject *parent) :
-	QGraphicsScene(parent), mCollisionEnabled(false)
+	QGraphicsScene(parent), mCollisionEnabled(false), mTracker(Tracker(0, 1000))
 {
 	mGraphicsObstacle = addPolygon(mObstacle, QPen(QBrush(Qt::green), 2));
 	initLeds();
@@ -179,13 +179,20 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 	}
 	for (int i = 0; i < senderRays.size(); i++) {
 		QGraphicsLineItem *r = nullptr;
-		if (!mCollisionEnabled || mObstacle.size() <= 1) {
+		if (!mCollisionEnabled || mCircles.size() <= 1) {
 			r = addLine(senderRays.at(i).line, QPen(QBrush(Qt::blue), 1));
 		} else {
-			const int size = mObstacle.size();
+			/*const int size = mObstacle.size();
 			for (int j = 0; j < size; j++) {
 				QLineF obsLine(mObstacle.at(j), mObstacle.at((j + 1) % size));
 				if (senderRays.at(i).line.intersect(obsLine, nullptr) == QLineF::BoundedIntersection) {
+					senderRays[i].visible = false;
+					break;
+				}
+			}*/
+			const int size = mCircles.size();
+			for (int j = 0; j < size; j++) {
+				if (pointToLineDistSquared(mCircles.at(j).center, senderRays.at(i).line) <= mCircles.at(j).radius * mCircles.at(j).radius) {
 					senderRays[i].visible = false;
 					break;
 				}
@@ -219,7 +226,7 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 		}
 	}
 	cv::Mat cvImage(mMats.at(0).size(), CV_8U);// = mMats[senderId];
-	cvImage = cv::Scalar(0);
+	cvImage = cv::Scalar(255);
 	for (int i = 0; i < senderRays.size(); i++) {
 		if (isStartingRay(senderRays, i)) {
 			QPolygonF polygon;
@@ -243,7 +250,7 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 			for (int j = 0; j < polygon.size(); j++) {
 				cvPoints << cv::Point2i(polygon.at(j).x(), polygon.at(j).y());
 			}
-			cv::fillConvexPoly(cvImage, cvPoints.constData(), cvPoints.size(), cv::Scalar(255));
+			cv::fillConvexPoly(cvImage, cvPoints.constData(), cvPoints.size(), cv::Scalar(0));
 		}
 	}
 	mMats[senderId] = cvImage;
@@ -254,13 +261,23 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 		}
 	}*/
 	cv::Mat finalImg(cvImage.size(), cvImage.type());
-	finalImg = cv::Scalar(0);
+	finalImg = cv::Scalar(255);
 	for (int i = 0; i < mMats.size(); i++) {
 		//cv::bitwise_or(finalImg, mMats.at(i), finalImg);
-		cv::max(finalImg, mMats.at(i), finalImg);
+		cv::min(finalImg, mMats.at(i), finalImg);
 		//finalImg |= mMats.at(i);
 	}
 	cv::imshow(QString(QString("plepleple ")/* + QString::number(senderId)*/).toStdString(), finalImg);
+	mTracker.trackBlobs(finalImg, false);
+	cv::Mat blobsImg(cvImage.size(), cvImage.type());
+	blobsImg = cv::Scalar(0);
+	QVector<Blob> blobs = mTracker.getBlobs();
+	qDebug() << "blobs.size() = " << blobs.size();
+	for (int i = 0; i < blobs.size(); i++) {
+		qDebug() << "blobs.at(" << i << "): min = " << blobs.at(i).min.x << ", " << blobs.at(i).min.y;
+		cv::rectangle(blobsImg, blobs.at(i).min, blobs.at(i).max, cv::Scalar(255));
+	}
+	cv::imshow(QString(QString("blobs")/* + QString::number(senderId)*/).toStdString(), blobsImg);
     updateCollisions();
 }
 
@@ -314,29 +331,40 @@ void RayDisplayScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         qDebug() << "left" << event->pos() << event->scenePos();
 	}
 	if (event->buttons().testFlag(Qt::RightButton)) {
-        qDebug() << "right" << event->pos() << event->scenePos();
-		mObstacle << event->scenePos();
-		mGraphicsObstacle->setPolygon(mObstacle);
+		qDebug() << "right" << event->pos() << event->scenePos();
+		Circle c {event->scenePos(), 5*4};
+		mCircles << c;
+		QPointF center = c.center;
+		QGraphicsEllipseItem *gei = new QGraphicsEllipseItem(QRectF(QPointF(center.x() - c.radius / 2, center.y() - c.radius / 2), QPointF(center.x() + c.radius / 2, center.y() + c.radius / 2)));
+		this->addItem(gei);
+
+		//mObstacle << event->scenePos();
+		//mGraphicsObstacle->setPolygon(mObstacle);
 	}
 }
 
 void RayDisplayScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	const int x = event->scenePos().x();
-	const int y = event->scenePos().y();
 	for (int i = 0; i < mRays.size(); i++) {
-		const float x2x1 = mRays.at(i)->line().p2().x() - mRays.at(i)->line().p1().x();
-		const float y2y1 = mRays.at(i)->line().p2().y() - mRays.at(i)->line().p1().y();
-		const float d = (x2x1) * (mRays.at(i)->line().p1().y() - y) - (mRays.at(i)->line().p1().x() - x) * (y2y1);
-		const float dSq = d * d;
-		const float y2y1Sq = y2y1 * y2y1;
-		const float x2x1Sq = x2x1 * x2x1;
-		const float distSq = dSq / (x2x1Sq + y2y1Sq);
+		const float distSq = pointToLineDistSquared(event->scenePos(), mRays.at(i)->line());
 		const bool visible = distSq > 4;
 		if (!(mRays.at(i)->isVisible() & visible)) {
 			mRays[i]->setVisible(visible);
 		}
 	}
+}
+
+float RayDisplayScene::pointToLineDistSquared(const QPointF &point, const QLineF &line) const
+{
+	const float x2x1 = line.p2().x() - line.p1().x();
+	const float y2y1 = line.p2().y() - line.p1().y();
+	const float d = (x2x1) * (line.p1().y() - point.y()) - (line.p1().x() - point.x()) * (y2y1);
+	const float dSq = d * d;
+	const float y2y1Sq = y2y1 * y2y1;
+	const float x2x1Sq = x2x1 * x2x1;
+	const float distSq = dSq / (x2x1Sq + y2y1Sq);
+
+	return distSq;
 }
 
 void RayDisplayScene::clearObstacle()

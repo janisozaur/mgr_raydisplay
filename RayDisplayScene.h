@@ -31,6 +31,12 @@ class RayDisplayScene : public QGraphicsScene
 		bool isCornerRay;
 	};
 
+	struct Circle
+	{
+		QPointF center;
+		float radius;
+	};
+
 public:
 	explicit RayDisplayScene(QObject *parent = 0);
 	virtual ~RayDisplayScene();
@@ -39,6 +45,7 @@ public:
 	int sendersCount() const;
 	bool isCollisionEnabled() const;
     void updateCollisions();
+	float pointToLineDistSquared(const QPointF &point, const QLineF &line) const;
 
 signals:
 	
@@ -62,6 +69,7 @@ private:
 	QVector<QGraphicsLineItem *> mRays;
 	QPolygonF mObstacle;
 	QGraphicsPolygonItem *mGraphicsObstacle;
+	QVector<Circle> mCircles;
 	QVector<QVector<QLineF> > mCollidedRays;
 	bool mCollisionEnabled;
     QVector<QGraphicsEllipseItem *> mCollisions;
