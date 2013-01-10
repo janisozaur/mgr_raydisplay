@@ -140,26 +140,43 @@ void RayDisplayScene::initLeds()
 	cv::imshow("plepleple", m);*/
 }
 
-void RayDisplayScene::lightenSender(int senderId, const int &angle)
+void RayDisplayScene::clearRayNumbers()
 {
 	for (int i = 0; i < mRayNumbers.size(); i++) {
 		delete mRayNumbers.at(i);
 	}
 	mRayNumbers.resize(0);
-	QVector<QLineF> &senderCollidedRays = mCollidedRays[senderId];
-    if (mCollisionEnabled) {
-		for (int i = 0; i < mCollidedRaysGraphics.at(senderId).size(); i++) {
-			delete mCollidedRaysGraphics.at(senderId).at(i);
-		}
-		mCollidedRaysGraphics[senderId].resize(0);
-		senderCollidedRays.resize(0);
-	}
+}
+
+void RayDisplayScene::clearTriangles()
+{
 	for (int i = 0; i < mTriangles.size(); i++) {
 		for (int j = 0; j < mTriangles.at(i).size(); j++) {
 			delete mTriangles.at(i).at(j);
 		}
 		mTriangles[i].clear();
 	}
+}
+
+QVector<QLineF> & RayDisplayScene::clearCollidedRays(int senderId)
+{
+	QVector<QLineF> &senderCollidedRays = mCollidedRays[senderId];
+	if (mCollisionEnabled) {
+		for (int i = 0; i < mCollidedRaysGraphics.at(senderId).size(); i++) {
+			delete mCollidedRaysGraphics.at(senderId).at(i);
+		}
+		mCollidedRaysGraphics[senderId].resize(0);
+		senderCollidedRays.resize(0);
+	}
+
+	return senderCollidedRays;
+}
+
+void RayDisplayScene::lightenSender(int senderId, const int &angle)
+{
+	clearRayNumbers();
+	QVector<QLineF> &senderCollidedRays = clearCollidedRays(senderId);
+	clearTriangles();
 	QVector<Ray> senderRays;
 	senderRays.reserve(10);
 	for (int i = 1; i < mSidedReceivers.size(); i++) {
@@ -279,6 +296,24 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 	}
 	cv::imshow(QString(QString("blobs")/* + QString::number(senderId)*/).toStdString(), blobsImg);
     updateCollisions();
+}
+
+void RayDisplayScene::lightenSender(int senderId, const QByteArray &detectors)
+{
+	qDebug() << __func__ << detectors.toHex();
+	for (int i = 0; i < mRays.size(); i++) {
+		delete mRays.at(i);
+	}
+	mRays.resize(0);
+	QGraphicsEllipseItem *s = mSenders.at(senderId).r;
+	for (int i = 0; i < detectors.size(); i++) {
+		for (int j = 0; j < 8; j++) {
+			if (detectors.at(i) & (1 << j)) {
+			} else {
+				mRays << this->addLine(QLineF(s->pos(), mReceivers.at(i * 8 + j)->pos()), QPen(Qt::black));
+			}
+		}
+	}
 }
 
 bool RayDisplayScene::isStartingRay(const QVector<Ray> &rays, const int idx) const

@@ -32,5 +32,5 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/release/ -lqextserialp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/debug/ -lqextserialport
 else:unix: LIBS += -L$$OUT_PWD/../qextserialport/ -lqextserialport
 
-INCLUDEPATH += $$PWD/../qextserialport/
+INCLUDEPATH += $$PWD/../qextserialport/src
 DEPENDPATH += $$PWD/../qextserialport/

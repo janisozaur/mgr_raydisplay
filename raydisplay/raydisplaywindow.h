@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <qextserialport.h>
 
 namespace Ui {
 	class RayDisplayWindow;
@@ -28,11 +29,21 @@ private slots:
 
     void on_radioButton_toggled(bool checked);
 
+	void readData();
+	void parseData(QByteArray arr);
+	void sendNextRequest();
+
+signals:
+	void lineRead(QByteArray qba);
+
 private:
     Ui::RayDisplayWindow *ui;
     RayDisplayScene *mRDS;
 	QTimer *mDemoRayTimer;
 	int mCurrentSender;
+	QextSerialPort mSerial;
+	QByteArray mData;
+	QTimer *mSendTimer;
 };
 
 #endif // RAYDISPLAYWINDOW_H

@@ -42,11 +42,15 @@ public:
 	virtual ~RayDisplayScene();
 	void initLeds();
 	void lightenSender(int senderId, const int &angle);
+	void lightenSender(int senderId, const QByteArray &detectors);
 	int sendersCount() const;
 	bool isCollisionEnabled() const;
     void updateCollisions();
 	float pointToLineDistSquared(const QPointF &point, const QLineF &line) const;
 
+	void clearRayNumbers();
+	void clearTriangles();
+	QVector<QLineF> & clearCollidedRays(int senderId);
 signals:
 	
 public slots:
