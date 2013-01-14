@@ -298,13 +298,12 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
     updateCollisions();
 }
 
-void RayDisplayScene::lightenSender(int senderId, const QByteArray &detectors)
+void RayDisplayScene::lightenSender(int senderId, const QByteArray &detectors, const bool clear)
 {
 	qDebug() << __func__ << detectors.toHex();
-	for (int i = 0; i < mRays.size(); i++) {
-		delete mRays.at(i);
+	if (clear) {
+		clearRays();
 	}
-	mRays.resize(0);
 	QGraphicsEllipseItem *s = mSenders.at(senderId).r;
 	for (int i = 0; i < detectors.size(); i++) {
 		for (int j = 0; j < 8; j++) {
