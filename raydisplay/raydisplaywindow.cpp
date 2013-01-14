@@ -1,6 +1,7 @@
 #include "raydisplaywindow.h"
 #include "ui_raydisplaywindow.h"
 #include "RayDisplayScene.h"
+#include "CommConfig.h"
 
 #include <QTimer>
 #include <QMessageBox>
@@ -47,12 +48,15 @@ RayDisplayWindow::RayDisplayWindow(QWidget *parent) :
 	QTimer *t = new QTimer(this);
 	t->setInterval(300);
 	connect(t, SIGNAL(timeout()), SLOT(readData()));
-	connect(this, SIGNAL(lineRead(QByteArray)), SLOT(parseData(QByteArray)));
+	connect(this, SIGNAL(reportRead(QByteArray)), SLOT(parseData(QByteArray)));
+	connect(this, SIGNAL(calibrationRead(QByteArray)), SLOT(parseCalibration(QByteArray)));
 	t->start();
+	requestCalibration();
 	mSendTimer = new QTimer(this);
 	connect(mSendTimer, SIGNAL(timeout()), SLOT(sendNextRequest()));
 	mSendTimer->setSingleShot(true);
-	mSendTimer->start(500);
+	//mSendTimer->start(500);
+	mModuleConfig.resize(20);
 }
 
 RayDisplayWindow::~RayDisplayWindow()
@@ -63,16 +67,34 @@ RayDisplayWindow::~RayDisplayWindow()
 
 void RayDisplayWindow::readData()
 {
-	mData.append(mSerial.readAll());
-	if (mData.size() > 20 && mData.contains(char(0xA))) {
-		int idx = mData.indexOf(char(0xA));
-		QByteArray toSend = mData.left(idx);
-		if (!toSend.isEmpty()) {
-			emit lineRead(toSend);
+	QByteArray freshData = mSerial.readAll();
+	mData.append(freshData);
+	const unsigned char termChar = TERMINATOR;
+	const QByteArray terminatorByteArray = QByteArray::fromRawData((const char *)&termChar, 1);
+	qDebug() << "terminatorByteArray:" << terminatorByteArray.toHex();
+	// there's no point in parsing all data if there was no terminator in new data.
+	if (freshData.contains(terminatorByteArray)) {
+		int idx;
+		while ((idx = mData.indexOf(terminatorByteArray)) != -1) {
+			qDebug() << "there is terminator at pos" << idx << "in data" << mData;
+			qDebug() << mData.left(idx + 1).toHex();
+			QByteArray toSend = mData.left(idx);
+			switch ((unsigned char)mData.at(0)) {
+				case CALIBRATION_START:
+					qDebug() << "emitting CALIBRATION_START";
+					emit calibrationRead(toSend);
+					break;
+				case REPORT_START:
+					qDebug() << "emitting REPORT_START";
+					emit reportRead(toSend);
+					break;
+				default:
+					qWarning() << "improper packet type:" << mData.at(0);
+			}
+			mData = mData.mid(idx + 1);
 		}
-		mData = mData.mid(idx + 1);
+		qDebug() << "no more terminator, leftover data:" << mData.toHex();
 	}
-	sendNextRequest();
 }
 
 void RayDisplayWindow::sendNextRequest()
@@ -93,6 +115,44 @@ void RayDisplayWindow::parseData(QByteArray arr)
 	qDebug() << QString(QByteArray::fromBase64(arr).toHex());
 	arr = QByteArray::fromBase64(arr);
 	mRDS->lightenSender(arr.at(arr.size() - 1), arr.left(arr.size() - 1));
+	sendNextRequest();
+}
+
+void RayDisplayWindow::requestCalibration()
+{
+	char c = 'c';
+	mSerial.write(&c, 1);
+}
+
+void RayDisplayWindow::parseCalibration(QByteArray arr)
+{
+	// skip packet id
+	QByteArray data(arr.right(arr.size() - 1));
+	int packetEnd;
+	while ((packetEnd = data.indexOf(CALIBRATION_REPORT_END)) != -1) {
+		QByteArray packet(data.left(packetEnd));
+		int packetId = packet.at(0);
+		// start looking for cal_pause after packet id
+		int bufferEnd = packet.indexOf(CALIBRATION_PAUSE, 2);
+		int start = 2;
+		int end = bufferEnd - start;
+		QByteArray seen(QByteArray::fromBase64(packet.mid(start, end)));
+
+		// copy rest of data (it was limited to report size already)
+		start = bufferEnd + 1;
+		QByteArray config(QByteArray::fromBase64(packet.mid(start)));
+
+		if (config.size() != seen.size()) {
+			qDebug() << "config and seen have different sizes:" << config.size() << seen.size();
+		}
+		QByteArray modulesSeen(20, 0xFF);
+		for (int i = 0, n = config.size(); i < n; i++) {
+			mModuleConfig[packetId].append(qMakePair((int)config.at(i), (quint8)seen.at(i)));
+			modulesSeen[config.at(i)] = seen.at(i);
+		}
+		mRDS->lightenSender(packetId, modulesSeen, false);
+		data = data.mid(packetEnd + 1);
+	}
 }
 
 void RayDisplayWindow::on_spinBox_valueChanged(int arg1)

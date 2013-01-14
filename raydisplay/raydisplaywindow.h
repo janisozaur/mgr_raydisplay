@@ -32,9 +32,12 @@ private slots:
 	void readData();
 	void parseData(QByteArray arr);
 	void sendNextRequest();
+	void requestCalibration();
+	void parseCalibration(QByteArray arr);
 
 signals:
-	void lineRead(QByteArray qba);
+	void reportRead(QByteArray arr);
+	void calibrationRead(QByteArray arr);
 
 private:
     Ui::RayDisplayWindow *ui;
@@ -44,6 +47,7 @@ private:
 	QextSerialPort mSerial;
 	QByteArray mData;
 	QTimer *mSendTimer;
+	QVector<QVector<QPair<int, quint8> > > mModuleConfig;
 };
 
 #endif // RAYDISPLAYWINDOW_H
