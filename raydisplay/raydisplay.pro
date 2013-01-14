@@ -23,7 +23,8 @@ SOURCES += main.cpp\
 HEADERS  += raydisplaywindow.h \
     RayDisplayScene.h \
     Blob.h \
-    Tracker.h
+    Tracker.h \
+    CommConfig.h
 
 FORMS    += raydisplaywindow.ui
 
