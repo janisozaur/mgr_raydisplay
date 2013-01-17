@@ -55,7 +55,7 @@ RayDisplayWindow::RayDisplayWindow(QWidget *parent) :
 	mSendTimer = new QTimer(this);
 	connect(mSendTimer, SIGNAL(timeout()), SLOT(sendNextRequest()));
 	mSendTimer->setSingleShot(true);
-	//mSendTimer->start(500);
+	mSendTimer->setInterval(500);
 	mModuleConfig.resize(20);
 }
 
@@ -99,7 +99,7 @@ void RayDisplayWindow::sendNextRequest()
 	char c = mCurrentSender;
 	mSerial.write(&c, 1);
 	mCurrentSender++;
-	if (mCurrentSender >= 4) {
+	if (mCurrentSender >= 20) {
 		mCurrentSender = 0;
 	}
 	//mSendTimer->start();
@@ -126,6 +126,7 @@ void RayDisplayWindow::parseCalibration(QByteArray arr)
 	// skip packet id
 	QByteArray data(arr.right(arr.size() - 1));
 	int packetEnd;
+	int sum = 0;
 	while ((packetEnd = data.indexOf(CALIBRATION_REPORT_END)) != -1) {
 		QByteArray packet(data.left(packetEnd));
 		int packetId = packet.at(0);
@@ -142,14 +143,21 @@ void RayDisplayWindow::parseCalibration(QByteArray arr)
 		if (config.size() != seen.size()) {
 			qDebug() << "config and seen have different sizes:" << config.size() << seen.size();
 		}
+		Q_ASSERT_X(config.size() == seen.size(), __func__, "config and seen have different sizes");
 		QByteArray modulesSeen(20, 0xFF);
 		for (int i = 0, n = config.size(); i < n; i++) {
 			mModuleConfig[packetId].append(qMakePair((int)config.at(i), (quint8)seen.at(i)));
 			modulesSeen[config.at(i)] = seen.at(i);
 		}
+		qDebug() << "sender" << packetId << "is seen by" << config.size() << "modules:";
+		qDebug() << config.toHex();
+		qDebug() << seen.toHex();
+		sum += config.size();
 		mRDS->lightenSender(packetId, modulesSeen, false);
 		data = data.mid(packetEnd + 1);
 	}
+	qDebug() << "in total there are" << sum << "configs, avg =" << (float)(sum)/20;
+	mSendTimer->start();
 }
 
 void RayDisplayWindow::on_spinBox_valueChanged(int arg1)
