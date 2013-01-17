@@ -69,13 +69,10 @@ void RayDisplayWindow::readData()
 {
 	QByteArray freshData = mSerial.readAll();
 	mData.append(freshData);
-	const unsigned char termChar = TERMINATOR;
-	const QByteArray terminatorByteArray = QByteArray::fromRawData((const char *)&termChar, 1);
-	qDebug() << "terminatorByteArray:" << terminatorByteArray.toHex();
 	// there's no point in parsing all data if there was no terminator in new data.
-	if (freshData.contains(terminatorByteArray)) {
+	if (freshData.contains(TERMINATOR)) {
 		int idx;
-		while ((idx = mData.indexOf(terminatorByteArray)) != -1) {
+		while ((idx = mData.indexOf(TERMINATOR)) != -1) {
 			qDebug() << "there is terminator at pos" << idx << "in data" << mData;
 			qDebug() << mData.left(idx + 1).toHex();
 			QByteArray toSend = mData.left(idx);
