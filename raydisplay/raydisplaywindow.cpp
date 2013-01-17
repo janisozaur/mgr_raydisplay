@@ -108,11 +108,23 @@ void RayDisplayWindow::sendNextRequest()
 void RayDisplayWindow::parseData(QByteArray arr)
 {
 	//qDebug() << "here";
-	qDebug() << arr;
-	qDebug() << QString(QByteArray::fromBase64(arr).toHex());
+	//qDebug() << arr;
+	//qDebug() << QString(QByteArray::fromBase64(arr).toHex());
 	arr = QByteArray::fromBase64(arr);
-	mRDS->lightenSender(arr.at(arr.size() - 1), arr.left(arr.size() - 1));
-	sendNextRequest();
+	const int senderId = arr.at(0);
+	QByteArray seen(20, 0xFF);
+	const QVector<QPair<int, quint8> > module = mModuleConfig.at(senderId);
+	const QByteArray seenData = arr.mid(1);
+	Q_ASSERT_X(seenData.size() == module.size(), __func__, "seenData has different size than module!");
+	for (int i = 0, n = module.size(); i < n; i++) {
+		const quint8 oldData = module.at(i).second;
+		const quint8 newData = seenData.at(i) & ~oldData;
+		const quint8 outData = oldData ^ newData;
+		seen[module.at(i).first] = ~outData;
+	}
+	mRDS->lightenSender(senderId, seen);
+	//sendNextRequest();
+	mSendTimer->start();
 }
 
 void RayDisplayWindow::requestCalibration()
