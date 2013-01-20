@@ -298,16 +298,16 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
     updateCollisions();
 }
 
-void RayDisplayScene::lightenSender(int senderId, const QByteArray &detectors, const bool clear)
+void RayDisplayScene::lightenSender(int senderId, const QVector<QBitArray> &detectors, const bool clear)
 {
-	qDebug() << __func__ << detectors.toHex();
+	qDebug() << __func__ << detectors;
 	if (clear) {
 		clearRays();
 	}
 	QGraphicsEllipseItem *s = mSenders.at(senderId).r;
 	for (int i = 0; i < detectors.size(); i++) {
 		for (int j = 0; j < 8; j++) {
-			if (detectors.at(i) & (1 << j)) {
+			if (detectors.at(i).testBit(j)) {
 			} else {
 				mRays << this->addLine(QLineF(s->pos(), mReceivers.at(i * 8 + j)->pos()), QPen(Qt::black));
 			}

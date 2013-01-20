@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include <QList>
 #include <QVector>
+#include <QBitArray>
 #include <opencv2/core/core.hpp>
 
 #include "Tracker.h"
@@ -42,7 +43,7 @@ public:
 	virtual ~RayDisplayScene();
 	void initLeds();
 	void lightenSender(int senderId, const int &angle);
-	void lightenSender(int senderId, const QByteArray &detectors, const bool clear = true);
+	void lightenSender(int senderId, const QVector<QBitArray> &detectors, const bool clear = true);
 	int sendersCount() const;
 	bool isCollisionEnabled() const;
     void updateCollisions();

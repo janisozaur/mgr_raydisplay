@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <QBitArray>
 #include <qextserialport.h>
 
 namespace Ui {
@@ -11,6 +12,11 @@ namespace Ui {
 
 class RayDisplayScene;
 class QTimer;
+
+struct CalibrationData
+{
+	QVector<QVector<QPair<int, QBitArray> > > moduleConfig;
+};
 
 class RayDisplayWindow : public QMainWindow
 {
@@ -47,7 +53,10 @@ private:
 	QextSerialPort mSerial;
 	QByteArray mData;
 	QTimer *mSendTimer;
-	QVector<QVector<QPair<int, quint8> > > mModuleConfig;
+	QVector<CalibrationData> mInitialCalibrations;
+	CalibrationData mCalibration;
+	const int mCalibrationCount;
+	int mCalibrationIndex;
 };
 
 #endif // RAYDISPLAYWINDOW_H
