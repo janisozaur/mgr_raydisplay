@@ -86,7 +86,7 @@ void RayDisplayWindow::readData()
 					emit reportRead(toSend);
 					break;
 				default:
-					qWarning() << "improper packet type:" << mData.at(0);
+					qWarning() << QString("improper packet type: %1").arg(QString::number(mData.at(0), 16));
 			}
 			mData = mData.mid(idx + 1);
 		}
