@@ -228,14 +228,17 @@ void RayDisplayWindow::parseCalibration(QByteArray arr)
 				const QVector<QVector<int> > &moduleData = calibrationData.at(j);
 				QVector<QVector<QPair<int, QBitArray> > > &moduleConfig = mCalibration.moduleConfig;
 				const QVector<QPair<int, QBitArray> > &lastCalibrationData = mInitialCalibrations.at(mCalibrationCount - 1).moduleConfig.at(j);
+				QVector<QPair<int, QBitArray> > t;
 				for (int k = 0, o = lastCalibrationData.size(); k < o; k++) {
+					QBitArray bits(8, true);
 					for (int x = 0; x < 8; x++) {
 						if (moduleData.at(lastCalibrationData.at(k).first).at(x) >= 2) {
-							//mCalibration[moduleData.at(lastCalibrationData.at(k).first)][x]++;
-							//moduleConfig[j]
+							bits.setBit(x);
 						}
 					}
+					t.append(qMakePair(lastCalibrationData.at(k).first, bits));
 				}
+				mCalibration.moduleConfig.append(t);
 			}
 		}
 
