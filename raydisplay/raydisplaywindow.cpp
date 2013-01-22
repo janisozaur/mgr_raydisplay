@@ -130,11 +130,9 @@ void RayDisplayWindow::parseData(QByteArray arr)
 	Q_ASSERT_X(seenData.size() == module.size(), __func__, "seenData has different size than module!");
 	for (int i = 0, n = module.size(); i < n; i++) {
 		const QBitArray oldData = module.at(i).second;
-		QBitArray newData = seenData.at(i);
-		newData &= ~oldData;
-		const QBitArray outData = oldData ^ newData;
-		//seen[module.at(i).first] = ~outData;
-		seen[module.at(i).first] = seenData.at(i);
+		const QBitArray newData = seenData.at(i);
+		const QBitArray outData = ~(newData | oldData);
+		seen[module.at(i).first] = outData;
 	}
 	mRDS->lightenSender(senderId, seen);
 	//sendNextRequest();
@@ -233,7 +231,7 @@ void RayDisplayWindow::parseCalibration(QByteArray arr)
 					QBitArray bits(8, true);
 					for (int x = 0; x < 8; x++) {
 						if (moduleData.at(lastCalibrationData.at(k).first).at(x) >= 2) {
-							bits.setBit(x);
+							bits.clearBit(x);
 						}
 					}
 					t.append(qMakePair(lastCalibrationData.at(k).first, bits));
