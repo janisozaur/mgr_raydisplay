@@ -131,7 +131,8 @@ void RayDisplayWindow::parseData(QByteArray arr)
 	for (int i = 0, n = module.size(); i < n; i++) {
 		const QBitArray oldData = module.at(i).second;
 		const QBitArray newData = seenData.at(i);
-		const QBitArray outData = ~(newData | oldData);
+		const QBitArray outData = ~(oldData & ~newData);
+		//const QBitArray outData = ~(newData | oldData);
 		seen[module.at(i).first] = outData;
 	}
 	mRDS->lightenSender(senderId, seen);
