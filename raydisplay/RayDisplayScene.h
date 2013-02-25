@@ -52,6 +52,8 @@ public:
 	void clearRayNumbers();
 	void clearTriangles();
 	QVector<QLineF> & clearCollidedRays(int senderId);
+        cv::Mat cvtrack1(int senderId, QVector<Ray> senderRays);
+		void cvTrack2(cv::Mat cvImage);
 signals:
 	
 public slots:

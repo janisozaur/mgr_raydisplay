@@ -172,6 +172,63 @@ QVector<QLineF> & RayDisplayScene::clearCollidedRays(int senderId)
 	return senderCollidedRays;
 }
 
+cv::Mat RayDisplayScene::cvtrack1(int senderId, QVector<Ray> senderRays)
+{
+	cv::Mat cvImage(mMats.at(0).size(), CV_8U);// = mMats[senderId];
+	cvImage = cv::Scalar(255);
+	for (int i = 0; i < senderRays.size(); i++) {
+		if (isStartingRay(senderRays, i)) {
+			QPolygonF polygon;
+			polygon.reserve(5);
+			polygon << mSenders.at(senderId).r->pos();
+			polygon << senderRays.at(i).line.p2();
+			int j;
+			for (j = i; j < senderRays.size(); j++) {
+				if (isFinishingRay(senderRays, j)) {
+					polygon << senderRays.at(j).line.p2();
+					i = j + 1;
+					break;
+				} else if (isCornerRay(senderRays, j)) {
+					polygon << senderRays.at(j).line.p2();
+				}
+			}
+			QGraphicsPolygonItem *polyItem = addPolygon(polygon, QPen(QBrush(Qt::green), 2), QBrush(Qt::magenta));
+			mTriangles[senderId] << polyItem;
+			QVector<cv::Point2i> cvPoints;
+			cvPoints.reserve(polygon.size());
+			for (int j = 0; j < polygon.size(); j++) {
+				cvPoints << cv::Point2i(polygon.at(j).x(), polygon.at(j).y());
+			}
+			cv::fillConvexPoly(cvImage, cvPoints.constData(), cvPoints.size(), cv::Scalar(0));
+		}
+	}
+	mMats[senderId] = cvImage;
+
+	return cvImage;
+}
+
+void RayDisplayScene::cvTrack2(cv::Mat cvImage)
+{
+	cv::Mat finalImg(cvImage.size(), cvImage.type());
+	finalImg = cv::Scalar(255);
+	for (int i = 0; i < mMats.size(); i++) {
+		//cv::bitwise_or(finalImg, mMats.at(i), finalImg);
+		cv::min(finalImg, mMats.at(i), finalImg);
+		//finalImg |= mMats.at(i);
+	}
+	cv::imshow(QString(QString("plepleple ")/* + QString::number(senderId)*/).toStdString(), finalImg);
+	mTracker.trackBlobs(finalImg, false);
+	cv::Mat blobsImg(cvImage.size(), cvImage.type());
+	blobsImg = cv::Scalar(0);
+	QVector<Blob> blobs = mTracker.getBlobs();
+	qDebug() << "blobs.size() = " << blobs.size();
+	for (int i = 0; i < blobs.size(); i++) {
+		qDebug() << "blobs.at(" << i << "): min = " << blobs.at(i).min.x << ", " << blobs.at(i).min.y;
+		cv::rectangle(blobsImg, blobs.at(i).min, blobs.at(i).max, cv::Scalar(255));
+	}
+	cv::imshow(QString(QString("blobs")/* + QString::number(senderId)*/).toStdString(), blobsImg);
+}
+
 void RayDisplayScene::lightenSender(int senderId, const int &angle)
 {
 	clearRayNumbers();
@@ -242,59 +299,21 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 			}
 		}
 	}
-	cv::Mat cvImage(mMats.at(0).size(), CV_8U);// = mMats[senderId];
-	cvImage = cv::Scalar(255);
-	for (int i = 0; i < senderRays.size(); i++) {
-		if (isStartingRay(senderRays, i)) {
-			QPolygonF polygon;
-			polygon.reserve(5);
-			polygon << mSenders.at(senderId).r->pos();
-			polygon << senderRays.at(i).line.p2();
-			int j;
-			for (j = i; j < senderRays.size(); j++) {
-				if (isFinishingRay(senderRays, j)) {
-					polygon << senderRays.at(j).line.p2();
-					i = j + 1;
-					break;
-				} else if (isCornerRay(senderRays, j)) {
-					polygon << senderRays.at(j).line.p2();
-				}
-			}
-			QGraphicsPolygonItem *polyItem = addPolygon(polygon, QPen(QBrush(Qt::green), 2), QBrush(Qt::magenta));
-			mTriangles[senderId] << polyItem;
-			QVector<cv::Point2i> cvPoints;
-			cvPoints.reserve(polygon.size());
-			for (int j = 0; j < polygon.size(); j++) {
-				cvPoints << cv::Point2i(polygon.at(j).x(), polygon.at(j).y());
-			}
-			cv::fillConvexPoly(cvImage, cvPoints.constData(), cvPoints.size(), cv::Scalar(0));
-		}
-	}
-	mMats[senderId] = cvImage;
+
+	// ******************************
+	// -----8<------8<-------8<------
+
+	//cv::Mat cvImage = cvtrack1(senderId, senderRays);
+
 	//cv::imshow(QString(QString("plepleple ")/* + QString::number(senderId)*/).toStdString(), cvImage);
 	/*for (int i = 0; i < mCvPolygons.size(); i++) {
 		for (int j = 0; j < mCvPolygons.at(i).size(); j++) {
 			cv::fillConvexPoly(cvImage, cvPoints.constData(), cvPoints.size(), cv::Scalar(127));
 		}
 	}*/
-	cv::Mat finalImg(cvImage.size(), cvImage.type());
-	finalImg = cv::Scalar(255);
-	for (int i = 0; i < mMats.size(); i++) {
-		//cv::bitwise_or(finalImg, mMats.at(i), finalImg);
-		cv::min(finalImg, mMats.at(i), finalImg);
-		//finalImg |= mMats.at(i);
-	}
-	cv::imshow(QString(QString("plepleple ")/* + QString::number(senderId)*/).toStdString(), finalImg);
-	mTracker.trackBlobs(finalImg, false);
-	cv::Mat blobsImg(cvImage.size(), cvImage.type());
-	blobsImg = cv::Scalar(0);
-	QVector<Blob> blobs = mTracker.getBlobs();
-	qDebug() << "blobs.size() = " << blobs.size();
-	for (int i = 0; i < blobs.size(); i++) {
-		qDebug() << "blobs.at(" << i << "): min = " << blobs.at(i).min.x << ", " << blobs.at(i).min.y;
-		cv::rectangle(blobsImg, blobs.at(i).min, blobs.at(i).max, cv::Scalar(255));
-	}
-	cv::imshow(QString(QString("blobs")/* + QString::number(senderId)*/).toStdString(), blobsImg);
+
+	//cvTrack2(cvImage);
+
     updateCollisions();
 }
 
@@ -304,15 +323,85 @@ void RayDisplayScene::lightenSender(int senderId, const QVector<QBitArray> &dete
 	if (clear) {
 		clearRays();
 	}
+	QVector<RayStatus> rayStatuses;
+	rayStatuses.reserve(detectors.size() * 8);
+	for (int i = 0, n = detectors.size(); i < n; i++) {
+		const QBitArray &calib = calibration.at(i);
+		const QBitArray &detect = detectors.at(i);
+		for (int j = 0; j < 8; j++) {
+			RayStatus r;
+			if (calib.testBit(j)) {
+				if (detect.testBit(j)) {
+					r = COVERED;
+				} else {
+					r = SEEN;
+				}
+			} else {
+				r = NOT_VISIBLE;
+			}
+			rayStatuses << r;
+		}
+	}
+	QVector<Ray> senderRays;
+	senderRays.reserve(10);
+	const bool tempCollisionEnabled = mCollisionEnabled;
+	mCollisionEnabled = true;
+	QVector<QLineF> &senderCollidedRays = clearCollidedRays(senderId);
+	mCollisionEnabled = tempCollisionEnabled;
+	clearTriangles();
 	QGraphicsEllipseItem *s = mSenders.at(senderId).r;
 	for (int i = 0; i < detectors.size(); i++) {
+		const int sideIdx = (mSenders.at(senderId).side + i) % mSidedReceivers.size();
 		for (int j = 0; j < 8; j++) {
-			if (detectors.at(i).testBit(j)) {
-			} else {
+			if (!detectors.at(i).testBit(j)) {
+				const QLineF line(s->pos(), mReceivers.at(i * 8 + j)->pos());
+				senderRays << Ray{line, true, (j == 0) || (j == mSidedReceivers.at(sideIdx).size() - 1) /* corner ray */};
 				mRays << this->addLine(QLineF(s->pos(), mReceivers.at(i * 8 + j)->pos()), QPen(Qt::black));
+			} else if (calibration.at(i).testBit(j)) {
+				const QLineF line(s->pos(), mReceivers.at(i * 8 + j)->pos());
+				senderRays << Ray{line, false, (j == 0) || (j == mSidedReceivers.at(sideIdx).size() - 1) /* corner ray */};
 			}
 		}
 	}
+	// add border rays of another colour
+	if (senderRays.size() > 0) {
+		QGraphicsLineItem *r = nullptr;
+		// first
+		{
+			r = addLine(senderRays.at(0).line, QPen(QBrush(Qt::yellow), 1));
+			mRays.append(r);
+		}
+		// last
+		if (senderRays.size() > 1) {
+			r = addLine(senderRays.at(senderRays.size() - 1).line, QPen(QBrush(Qt::yellow), 1));
+			mRays.append(r);
+		}
+		// on every state change
+		for (int i = 1; i < senderRays.size() - 1; i++) {
+			if (!senderRays.at(i).visible && (senderRays.at(i - 1).visible || senderRays.at(i + 1).visible)) {
+				senderCollidedRays << senderRays.at(i).line;
+				//r = addLine(senderRays.at(i).line, QPen(QBrush(Qt::red), 1));
+				//mCollidedRaysGraphics[senderId] << r;
+			}
+		}
+	}
+	// ******************************
+	// -----8<------8<-------8<------
+
+	//cv::Mat cvImage = cvtrack1(senderId, senderRays);
+
+	//cv::imshow(QString(QString("plepleple ")/* + QString::number(senderId)*/).toStdString(), cvImage);
+	/*for (int i = 0; i < mCvPolygons.size(); i++) {
+		for (int j = 0; j < mCvPolygons.at(i).size(); j++) {
+			cv::fillConvexPoly(cvImage, cvPoints.constData(), cvPoints.size(), cv::Scalar(127));
+		}
+	}*/
+
+	//cvTrack2(cvImage);
+
+	mTI->trackBlobs(rayStatuses, senderId);
+
+	//updateCollisions();
 }
 
 bool RayDisplayScene::isStartingRay(const QVector<Ray> &rays, const int idx) const
