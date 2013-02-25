@@ -35,7 +35,7 @@ RayDisplayWindow::RayDisplayWindow(QWidget *parent) :
 	ps.StopBits = STOP_1;
 	ps.FlowControl = FLOW_OFF;
 	ps.Timeout_Millisec = 500;*/
-	mSerial.setPortName("/dev/ttyUSB1");
+	mSerial.setPortName("/dev/ttyUSB0");
 	mSerial.setBaudRate(BAUD9600);
 	mSerial.setDataBits(DATA_8);
 	mSerial.setParity(PAR_NONE);
@@ -62,7 +62,7 @@ RayDisplayWindow::RayDisplayWindow(QWidget *parent) :
 	mSendTimer = new QTimer(this);
 	connect(mSendTimer, SIGNAL(timeout()), SLOT(sendNextRequest()));
 	mSendTimer->setSingleShot(true);
-	mSendTimer->setInterval(500);
+	mSendTimer->setInterval(1);
 }
 
 RayDisplayWindow::~RayDisplayWindow()
