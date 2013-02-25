@@ -12,6 +12,7 @@
 class QGraphicsEllipseItem;
 class QGraphicsLineItem;
 class QPolygonF;
+class TrackerInterface;
 
 class RayDisplayScene : public QGraphicsScene
 {
@@ -43,7 +44,7 @@ public:
 	virtual ~RayDisplayScene();
 	void initLeds();
 	void lightenSender(int senderId, const int &angle);
-	void lightenSender(int senderId, const QVector<QBitArray> &detectors, const bool clear = true);
+	void lightenSender(const int senderId, const QVector<QBitArray> &detectors, const QVector<QBitArray> &calibration, const bool clear = true);
 	int sendersCount() const;
 	bool isCollisionEnabled() const;
     void updateCollisions();
@@ -86,6 +87,7 @@ private:
 	QVector<QList<QVector<cv::Point2i> > > mCvPolygons;
 	QVector<cv::Mat> mMats;
 	Tracker mTracker;
+	TrackerInterface *mTI;
 };
 
 #endif // RAYDISPLAYSCENE_H

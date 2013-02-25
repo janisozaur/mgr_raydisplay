@@ -1,4 +1,6 @@
 #include "RayDisplayScene.h"
+#include "TrackerInterface.h"
+#include "CvTracker.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsEllipseItem>
@@ -8,7 +10,8 @@
 #include <QDebug>
 
 RayDisplayScene::RayDisplayScene(QObject *parent) :
-	QGraphicsScene(parent), mCollisionEnabled(false), mTracker(Tracker(0, 1000))
+	QGraphicsScene(parent), mCollisionEnabled(false), mTracker(Tracker(0, 1000)),
+	mTI(nullptr)
 {
 	mGraphicsObstacle = addPolygon(mObstacle, QPen(QBrush(Qt::green), 2));
 	initLeds();
@@ -16,6 +19,7 @@ RayDisplayScene::RayDisplayScene(QObject *parent) :
 
 RayDisplayScene::~RayDisplayScene()
 {
+	delete mTI;
 }
 
 void RayDisplayScene::initLeds()
@@ -24,11 +28,17 @@ void RayDisplayScene::initLeds()
 	//sizes << 64 << 40 << 64 << 40;
 	sizes << 48 << 32 << 48 << 32;
 	Q_ASSERT(4 == sizes.size());
-	mSidedReceivers.resize(4);
+	QVector<QVector<QPointF>> sidedReceiversPos;
+	QVector<QVector<QPointF>> sidedSendersPos;
+	sidedReceiversPos.resize(sizes.size());
+	mSidedReceivers.resize(sizes.size());
+	sidedSendersPos.resize(sizes.size());
 	int allReceivers = 0;
 	for (int i = 0; i < sizes.size(); i++) {
 		Q_ASSERT(sizes.at(i) % 8 == 0);
+		sidedReceiversPos[i].reserve(sizes.at(i));
 		mSidedReceivers[i].reserve(sizes.at(i));
+		sidedSendersPos[i].reserve(sizes.at(i) / 8);
 		allReceivers += sizes.at(i) / 8;
 	}
 	mReceivers.reserve(allReceivers * 8);
@@ -40,9 +50,12 @@ void RayDisplayScene::initLeds()
         const int x = i * 10;
 		const int y = 0;
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::black), 2));
-		r->setPos(x, y);
+		const int sideId = 0;
+		const QPointF p(x, y);
+		sidedReceiversPos[sideId] << p;
+		r->setPos(p);
 		mReceivers.append(r);
-		mSidedReceivers[0] << r;
+		mSidedReceivers[sideId] << r;
 	}
     // right top-to-bottom
 	for (int i = 0; i < sizes.at(1); i++) {
@@ -50,9 +63,12 @@ void RayDisplayScene::initLeds()
 		const int x = sizes.at(0) * 10;
 		const int y = i * 10 - (0 - 5);
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::black), 2));
-		r->setPos(x, y);
+		const int sideId = 1;
+		const QPointF p(x, y);
+		sidedReceiversPos[sideId] << p;
+		r->setPos(p);
         mReceivers.append(r);
-		mSidedReceivers[1] << r;
+		mSidedReceivers[sideId] << r;
     }
     // bottom right-to-left
 	for (int i = 0; i < sizes.at(2); i++) {
@@ -60,9 +76,12 @@ void RayDisplayScene::initLeds()
 		const int x = i * -10 + sizes.at(0) * 10 - 10;
 		const int y = sizes.at(1) * 10;
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::black), 2));
-		r->setPos(x, y);
+		const int sideId = 2;
+		const QPointF p(x, y);
+		sidedReceiversPos[sideId] << p;
+		r->setPos(p);
         mReceivers.append(r);
-		mSidedReceivers[2] << r;
+		mSidedReceivers[sideId] << r;
     }
     // left bottom-to-top
 	for (int i = 0; i < sizes.at(3); i++) {
@@ -70,9 +89,12 @@ void RayDisplayScene::initLeds()
         const int x = -5;
 		const int y = i * -10 + ((sizes.at(1)) * 10 - 5);
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::black), 2));
-		r->setPos(x, y);
+		const int sideId = 3;
+		const QPointF p(x, y);
+		sidedReceiversPos[sideId] << p;
+		r->setPos(p);
         mReceivers.append(r);
-		mSidedReceivers[3] << r;
+		mSidedReceivers[sideId] << r;
     }
 
     // top left-to-right
@@ -81,8 +103,11 @@ void RayDisplayScene::initLeds()
         const int x = i * 80 + 35;
 		const int y = 0;
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::red), 2));
-		r->setPos(x, y);
-		mSenders.append(Sender{r, 270, 0});
+		const int sideId = 0;
+		const QPointF p(x, y);
+		sidedSendersPos[sideId] << p;
+		r->setPos(p);
+		mSenders.append(Sender{r, 270, sideId});
     }
     // right top-to-bottom
 	for (int i = 0; i < (sizes.at(1) / 8); i++) {
@@ -90,8 +115,11 @@ void RayDisplayScene::initLeds()
 		const int x = sizes.at(0) * 10;
 		const int y = i * 80 - (0 - 40);
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::red), 2));
-		r->setPos(x, y);
-		mSenders.append(Sender{r, 180, 1});
+		const int sideId = 1;
+		const QPointF p(x, y);
+		sidedSendersPos[sideId] << p;
+		r->setPos(p);
+		mSenders.append(Sender{r, 180, sideId});
 	}
     // bottom right-to-left
 	for (int i = 0; i < (sizes.at(2) / 8); i++) {
@@ -99,8 +127,11 @@ void RayDisplayScene::initLeds()
 		const int x = i * -80 + (sizes.at(0) * 10 - 40 - 5);
 		const int y = sizes.at(1) * 10;
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::red), 2));
-		r->setPos(x, y);
-		mSenders.append(Sender{r, 90, 2});
+		const int sideId = 2;
+		const QPointF p(x, y);
+		sidedSendersPos[sideId] << p;
+		r->setPos(p);
+		mSenders.append(Sender{r, 90, sideId});
     }
     // left bottom-to-top
 	for (int i = 0; i < (sizes.at(3) / 8); i++) {
@@ -108,11 +139,15 @@ void RayDisplayScene::initLeds()
         const int x = -5;
 		const int y = i * -80 + ((sizes.at(1) * 10) - 40);
 		r = addEllipse(0, 0, 5, 5, QPen(QBrush(Qt::red), 2));
-		r->setPos(x, y);
-        //QGraphicsSimpleTextItem *t = addSimpleText(QString::number(i));
-        //t->moveBy(x + 10, y);
-		mSenders.append(Sender{r, 0, 3});
+		const int sideId = 3;
+		const QPointF p(x, y);
+		sidedSendersPos[sideId] << p;
+		r->setPos(p);
+		mSenders.append(Sender{r, 0, sideId});
 	}
+
+	mTI = new CvTracker(sidedReceiversPos, sidedSendersPos, this);
+
 	mCollidedRays.clear();
 	mCollidedRays.resize(mSenders.size());
 	mCollidedRaysGraphics.clear();
@@ -279,18 +314,21 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
 			mRays.append(r);
 		}
 	}
+	// add border rays of another colour
 	if (senderRays.size() > 0) {
 		QGraphicsLineItem *r = nullptr;
-		/*if (!senderRays.at(0).visible)*/ {
-			//senderCollidedRays << senderRays.at(0).line;
+		// first
+		{
 			r = addLine(senderRays.at(0).line, QPen(QBrush(Qt::yellow), 1));
 			mRays.append(r);
 		}
+		// last
 		if (senderRays.size() > 1/* && !senderRays.at(senderRays.size() - 1).visible*/) {
 			//senderCollidedRays << senderRays.at(senderRays.size() - 1).line;
 			r = addLine(senderRays.at(senderRays.size() - 1).line, QPen(QBrush(Qt::yellow), 1));
 			mRays.append(r);
 		}
+		// on every state change
 		for (int i = 1; i < senderRays.size() - 1; i++) {
 			if (!senderRays.at(i).visible && (senderRays.at(i - 1).visible || senderRays.at(i + 1).visible)) {
 				senderCollidedRays << senderRays.at(i).line;
@@ -317,7 +355,7 @@ void RayDisplayScene::lightenSender(int senderId, const int &angle)
     updateCollisions();
 }
 
-void RayDisplayScene::lightenSender(int senderId, const QVector<QBitArray> &detectors, const bool clear)
+void RayDisplayScene::lightenSender(const int senderId, const QVector<QBitArray> &detectors, const QVector<QBitArray> &calibration, const bool clear)
 {
 	qDebug() << __func__ << detectors;
 	if (clear) {

@@ -36,7 +36,7 @@ private slots:
     void on_radioButton_toggled(bool checked);
 
 	void readData();
-	void parseData(QByteArray arr);
+	void parseData(const QByteArray input);
 	void sendNextRequest();
 	void requestCalibration();
 	void parseCalibration(QByteArray arr);

@@ -35,3 +35,15 @@ else:unix: LIBS += -L$$OUT_PWD/../qextserialport/ -lqextserialport
 
 INCLUDEPATH += $$PWD/../qextserialport/src
 DEPENDPATH += $$PWD/../qextserialport/
+
+HEADERS += \
+    TrackerInterface.h
+
+HEADERS += \
+    CvTracker.h
+
+SOURCES += \
+    CvTracker.cpp
+
+SOURCES += \
+    TrackerInterface.cpp

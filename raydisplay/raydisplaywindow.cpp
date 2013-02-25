@@ -81,7 +81,7 @@ void RayDisplayWindow::readData()
 		while ((idx = mData.indexOf(TERMINATOR)) != -1) {
 			qDebug() << "there is terminator at pos" << idx << "in data" << mData;
 			qDebug() << mData.left(idx + 1).toHex();
-			QByteArray toSend = mData.left(idx);
+			QByteArray toSend = mData.left(idx).mid(1);
 			switch ((unsigned char)mData.at(0)) {
 				case CALIBRATION_START:
 					qDebug() << "emitting CALIBRATION_START";
@@ -111,14 +111,15 @@ void RayDisplayWindow::sendNextRequest()
 	//mSendTimer->start();
 }
 
-void RayDisplayWindow::parseData(QByteArray arr)
+void RayDisplayWindow::parseData(const QByteArray input)
 {
 	//qDebug() << "here";
 	//qDebug() << arr;
 	//qDebug() << QString(QByteArray::fromBase64(arr).toHex());
-	arr = QByteArray::fromBase64(arr);
+	QByteArray arr = QByteArray::fromBase64(input);
 	const int senderId = arr.at(0);
 	QVector<QBitArray> seen(20, QBitArray(8, true));
+	QVector<QBitArray> cal(20, QBitArray(8, true));
 	const QVector<QPair<int, QBitArray> > module = mCalibration.moduleConfig.at(senderId);
 	const QByteArray tempData = arr.mid(1);
 	QVector<QBitArray> seenData(arr.size() - 1, QBitArray(8));
@@ -127,15 +128,21 @@ void RayDisplayWindow::parseData(QByteArray arr)
 			seenData[i].setBit(j, tempData.at(i) & (1 << j));
 		}
 	}
-	Q_ASSERT_X(seenData.size() == module.size(), __func__, "seenData has different size than module!");
+	//Q_ASSERT_X(seenData.size() == module.size(), __func__, "seenData has different size than module!");
+	if (seenData.size() != module.size()) {
+		qDebug() << "size fail";
+		mSendTimer->start();
+		return;
+	}
 	for (int i = 0, n = module.size(); i < n; i++) {
 		const QBitArray oldData = module.at(i).second;
 		const QBitArray newData = seenData.at(i);
 		const QBitArray outData = ~(oldData & ~newData);
 		//const QBitArray outData = ~(newData | oldData);
 		seen[module.at(i).first] = outData;
+		cal[module.at(i).first] = oldData;
 	}
-	mRDS->lightenSender(senderId, seen);
+	mRDS->lightenSender(senderId, seen, cal);
 	//sendNextRequest();
 	mSendTimer->start();
 }
@@ -149,7 +156,8 @@ void RayDisplayWindow::requestCalibration()
 void RayDisplayWindow::parseCalibration(QByteArray arr)
 {
 	// skip packet id
-	QByteArray data(arr.right(arr.size() - 1));
+	//QByteArray data(arr.right(arr.size() - 1));
+	QByteArray data(arr);
 	int packetEnd;
 	int sum = 0;
 	while ((packetEnd = data.indexOf(CALIBRATION_REPORT_END)) != -1) {
@@ -172,20 +180,20 @@ void RayDisplayWindow::parseCalibration(QByteArray arr)
 		QVector<QBitArray> modulesSeen(20, QBitArray(8, true));
 		auto &moduleConfig = mInitialCalibrations[mCalibrationIndex].moduleConfig;
 		for (int i = 0, n = config.size(); i < n; i++) {
-			QBitArray arr(8);
+			QBitArray bitArr(8);
 			for (int j = 0; j < 8; j++) {
 				if (seen.at(i) & (1 << j)) {
-					arr.setBit(j);
+					bitArr.setBit(j);
 				}
 			}
-			moduleConfig[packetId].append(qMakePair((int)config.at(i), arr));
-			modulesSeen[config.at(i)] = arr;
+			moduleConfig[packetId].append(qMakePair((int)config.at(i), bitArr));
+			modulesSeen[config.at(i)] = bitArr;
 		}
 		qDebug() << "sender" << packetId << "is seen by" << config.size() << "modules:";
 		qDebug() << config.toHex();
 		qDebug() << seen.toHex();
 		sum += config.size();
-		mRDS->lightenSender(packetId, modulesSeen, false);
+		//mRDS->lightenSender(packetId, modulesSeen, false);
 		data = data.mid(packetEnd + 1);
 	}
 	qDebug() << "in total there are" << sum << "configs, avg =" << (float)(sum)/20;
