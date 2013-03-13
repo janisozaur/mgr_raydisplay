@@ -14,7 +14,6 @@ RayDisplayScene::RayDisplayScene(QObject *parent) :
 	mTI(nullptr)
 {
 	mGraphicsObstacle = addPolygon(mObstacle, QPen(QBrush(Qt::green), 2));
-	initLeds();
 }
 
 RayDisplayScene::~RayDisplayScene()
@@ -147,6 +146,7 @@ void RayDisplayScene::initLeds()
 	}
 
 	mTI = new CvTracker(sidedReceiversPos, sidedSendersPos, this);
+	emit publishSizes(sidedReceiversPos, sidedSendersPos);
 
 	mCollidedRays.clear();
 	mCollidedRays.resize(mSenders.size());
@@ -363,23 +363,16 @@ void RayDisplayScene::lightenSender(const int senderId, const QVector<QBitArray>
 	}
 	QVector<RayStatus> rayStatuses;
 	rayStatuses.reserve(detectors.size() * 8);
-	for (int i = 0, n = detectors.size(); i < n; i++) {
+	/*for (int i = 0, n = detectors.size(); i < n; i++) {
 		const QBitArray &calib = calibration.at(i);
 		const QBitArray &detect = detectors.at(i);
 		for (int j = 0; j < 8; j++) {
-			RayStatus r;
-			if (calib.testBit(j)) {
-				if (detect.testBit(j)) {
-					r = COVERED;
-				} else {
-					r = SEEN;
-				}
+			if (!detect.testBit(j)) {
+			} else if (calib.testBit(j)) {
 			} else {
-				r = NOT_VISIBLE;
 			}
-			rayStatuses << r;
 		}
-	}
+	}*/
 	QVector<Ray> senderRays;
 	senderRays.reserve(10);
 	const bool tempCollisionEnabled = mCollisionEnabled;
@@ -391,16 +384,23 @@ void RayDisplayScene::lightenSender(const int senderId, const QVector<QBitArray>
 	for (int i = 0; i < detectors.size(); i++) {
 		const int sideIdx = (mSenders.at(senderId).side + i) % mSidedReceivers.size();
 		for (int j = 0; j < 8; j++) {
+			RayStatus r;
 			if (!detectors.at(i).testBit(j)) {
 				const QLineF line(s->pos(), mReceivers.at(i * 8 + j)->pos());
 				senderRays << Ray{line, true, (j == 0) || (j == mSidedReceivers.at(sideIdx).size() - 1) /* corner ray */};
 				mRays << this->addLine(QLineF(s->pos(), mReceivers.at(i * 8 + j)->pos()), QPen(Qt::black));
+				r = SEEN;
 			} else if (calibration.at(i).testBit(j)) {
 				const QLineF line(s->pos(), mReceivers.at(i * 8 + j)->pos());
 				senderRays << Ray{line, false, (j == 0) || (j == mSidedReceivers.at(sideIdx).size() - 1) /* corner ray */};
+				r = COVERED;
+			} else {
+				r = NOT_VISIBLE;
 			}
+			rayStatuses << r;
 		}
 	}
+	qDebug() << rayStatuses;
 	// add border rays of another colour
 	if (senderRays.size() > 0) {
 		QGraphicsLineItem *r = nullptr;

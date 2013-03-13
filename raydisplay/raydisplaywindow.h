@@ -12,6 +12,7 @@ namespace Ui {
 
 class RayDisplayScene;
 class QTimer;
+class CalibrationViewerDialog;
 
 struct CalibrationData
 {
@@ -57,6 +58,7 @@ private:
 	CalibrationData mCalibration;
 	const int mCalibrationCount;
 	int mCalibrationIndex;
+	CalibrationViewerDialog *mCalibrationViewer;
 };
 
 #endif // RAYDISPLAYWINDOW_H

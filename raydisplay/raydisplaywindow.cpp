@@ -2,6 +2,7 @@
 #include "ui_raydisplaywindow.h"
 #include "RayDisplayScene.h"
 #include "CommConfig.h"
+#include "CalibrationViewerDialog.h"
 
 #include <QTimer>
 #include <QMessageBox>
@@ -13,10 +14,13 @@ RayDisplayWindow::RayDisplayWindow(QWidget *parent) :
 	ui(new Ui::RayDisplayWindow),
 	mCurrentSender(0),
 	mCalibrationCount(3),
-	mCalibrationIndex(0)
+	mCalibrationIndex(0),
+	mCalibrationViewer(new CalibrationViewerDialog(this))
 {
     ui->setupUi(this);
 	mRDS = new RayDisplayScene(this);
+	connect(mRDS, SIGNAL(publishSizes(QVector<QVector<QPointF> >,QVector<QVector<QPointF> >)), mCalibrationViewer, SLOT(setSizes(QVector<QVector<QPointF> >,QVector<QVector<QPointF> >)));
+	mRDS->initLeds();
 	mDemoRayTimer = new QTimer(this);
 	ui->modelDisplay->setScene(mRDS);
     qDebug() << mRDS->sceneRect();
@@ -69,6 +73,7 @@ RayDisplayWindow::~RayDisplayWindow()
 {
 	delete ui;
 	delete mRDS;
+	delete mCalibrationViewer;
 }
 
 void RayDisplayWindow::readData()
@@ -251,6 +256,8 @@ void RayDisplayWindow::parseCalibration(QByteArray arr)
 
 		mCalibrationIndex++;
 		mSendTimer->start();
+		mCalibrationViewer->setCalibrations(mInitialCalibrations);
+		mCalibrationViewer->show();
 	} else {
 		mCalibrationIndex++;
 		requestCalibration();

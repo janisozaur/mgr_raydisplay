@@ -53,9 +53,10 @@ public:
 	void clearRayNumbers();
 	void clearTriangles();
 	QVector<QLineF> & clearCollidedRays(int senderId);
-        cv::Mat cvtrack1(int senderId, QVector<Ray> senderRays);
-		void cvTrack2(cv::Mat cvImage);
+	cv::Mat cvtrack1(int senderId, QVector<Ray> senderRays);
+	void cvTrack2(cv::Mat cvImage);
 signals:
+	void publishSizes(const QVector<QVector<QPointF> > &receivers, const QVector<QVector<QPointF> > &senders);
 	
 public slots:
 	void initRays(const int &angle);
