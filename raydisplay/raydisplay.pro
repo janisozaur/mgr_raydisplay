@@ -47,3 +47,12 @@ SOURCES += \
 
 SOURCES += \
     TrackerInterface.cpp
+
+HEADERS += \
+    CalibrationViewerDialog.h
+
+SOURCES += \
+    CalibrationViewerDialog.cpp
+
+FORMS += \
+    CalibrationViewerDialog.ui
