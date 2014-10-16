@@ -39,13 +39,14 @@ RayDisplayWindow::RayDisplayWindow(QWidget *parent) :
 	ps.StopBits = STOP_1;
 	ps.FlowControl = FLOW_OFF;
 	ps.Timeout_Millisec = 500;*/
-	mSerial.setPortName("/dev/ttyUSB0");
+	mSerial.setPortName("/dev/ttyACM1");
 	mSerial.setBaudRate(BAUD9600);
 	mSerial.setDataBits(DATA_8);
 	mSerial.setParity(PAR_NONE);
 	mSerial.setStopBits(STOP_1);
 	mSerial.setFlowControl(FLOW_OFF);
 	mSerial.setTimeout(100);
+	qDebug() << "connecting to " << mSerial.portName();
 	bool opened = mSerial.open(QIODevice::ReadWrite);
 	if (!opened) {
 		QMessageBox::critical(this, "error", QString("error opening serial port ") + mSerial.errorString());
@@ -107,7 +108,9 @@ void RayDisplayWindow::readData()
 
 void RayDisplayWindow::sendNextRequest()
 {
-	char c = mCurrentSender;
+	char c = 0x01;
+	mSerial.write(&c, 1);
+	c = mCurrentSender;
 	mSerial.write(&c, 1);
 	mCurrentSender++;
 	if (mCurrentSender >= 20) {
@@ -154,7 +157,8 @@ void RayDisplayWindow::parseData(const QByteArray input)
 
 void RayDisplayWindow::requestCalibration()
 {
-	char c = 'c';
+	char c = 0x03;
+	mSerial.write(&c, 1);
 	mSerial.write(&c, 1);
 }
 

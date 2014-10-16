@@ -22,16 +22,19 @@ QVariantMap CvTracker::trackBlobs(const QVector<RayStatus> rays, const int sende
 	cvImage = cv::Scalar(255);
 	for (int i = 0, n = rays.size(); i < n; i++) {
 		if (isStartingRay(rays, i)) {
+			qDebug() << __func__ << "starting ray" << i;
 			QPolygonF polygon;
 			polygon.reserve(5);
 			polygon << idToSender(senderId);
 			polygon << idToReceiver(i);
 			for (int j = i; j < n; j++) {
 				if (isFinishingRay(rays, j)) {
+					qDebug() << __func__ << "finishing ray" << j;
 					polygon << idToReceiver(j);
 					i = j + 1;
 					break;
 				} else if (isCornerRay(j)) {
+					qDebug() << __func__ << "corner ray" << j;
 					polygon << idToReceiver(j);
 				}
 			}

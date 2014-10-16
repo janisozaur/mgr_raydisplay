@@ -209,10 +209,16 @@ QVector<QLineF> & RayDisplayScene::clearCollidedRays(int senderId)
 
 cv::Mat RayDisplayScene::cvtrack1(int senderId, QVector<Ray> senderRays)
 {
+	QStringList senderDebug;
+	senderDebug.reserve(80);
+	for (int i = 0; i < senderRays.size(); i++) {
+		//if (senderRays.at(i).visible)
+	}
 	cv::Mat cvImage(mMats.at(0).size(), CV_8U);// = mMats[senderId];
 	cvImage = cv::Scalar(255);
 	for (int i = 0; i < senderRays.size(); i++) {
 		if (isStartingRay(senderRays, i)) {
+			qDebug() << __func__ << "starting ray" << i;
 			QPolygonF polygon;
 			polygon.reserve(5);
 			polygon << mSenders.at(senderId).r->pos();
@@ -220,10 +226,12 @@ cv::Mat RayDisplayScene::cvtrack1(int senderId, QVector<Ray> senderRays)
 			int j;
 			for (j = i; j < senderRays.size(); j++) {
 				if (isFinishingRay(senderRays, j)) {
+					qDebug() << __func__ << "finishing ray" << j;
 					polygon << senderRays.at(j).line.p2();
 					i = j + 1;
 					break;
 				} else if (isCornerRay(senderRays, j)) {
+					qDebug() << __func__ << "corner ray" << j;
 					polygon << senderRays.at(j).line.p2();
 				}
 			}
@@ -426,7 +434,7 @@ void RayDisplayScene::lightenSender(const int senderId, const QVector<QBitArray>
 	// ******************************
 	// -----8<------8<-------8<------
 
-	//cv::Mat cvImage = cvtrack1(senderId, senderRays);
+	cv::Mat cvImage = cvtrack1(senderId, senderRays);
 
 	//cv::imshow(QString(QString("plepleple ")/* + QString::number(senderId)*/).toStdString(), cvImage);
 	/*for (int i = 0; i < mCvPolygons.size(); i++) {
@@ -435,9 +443,9 @@ void RayDisplayScene::lightenSender(const int senderId, const QVector<QBitArray>
 		}
 	}*/
 
-	//cvTrack2(cvImage);
+	cvTrack2(cvImage);
 
-	mTI->trackBlobs(rayStatuses, senderId);
+	//mTI->trackBlobs(rayStatuses, senderId);
 
 	//updateCollisions();
 }

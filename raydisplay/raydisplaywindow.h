@@ -6,6 +6,7 @@
 #include <QBitArray>
 #include <qextserialport.h>
 
+
 namespace Ui {
 	class RayDisplayWindow;
 }
